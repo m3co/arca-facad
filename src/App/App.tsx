@@ -3,30 +3,34 @@ import { Store } from 'redux';
 import { connect } from 'react-redux';
 import { getSpecificSource, State } from 'arca-redux-v4';
 import { socket } from '../redux/store';
+import Loader from '../Components/Loader/Loader';
+import ArcaTable from '../Components/ArcaTable/ArcaTable';
 
 interface AppProps {
-  facad: State['Source']['FACAD-BuiltInCategories']
+  facad: State['Source']['FACAD-preCFT-AAU']
 }
 
 const App: React.FunctionComponent<AppProps> = ({
   facad,
 }) => {
   useEffect(() => {
-    socket.subscribe('FACAD-BuiltInCategories');
-    socket.select('FACAD-BuiltInCategories');
+    socket.subscribe('FACAD-preCFT-AAU');
+    socket.select('FACAD-preCFT-AAU');
   }, []);
 
   return (
     <div className='page'>
       {
-        JSON.stringify(facad)
+        facad.length
+          ? <ArcaTable rows={facad} />
+          : <Loader />
       }
     </div>
   );
 };
 
 const mapStateToProps = (state: Store) => ({
-  facad: getSpecificSource(state, 'FACAD-BuiltInCategories'),
+  facad: getSpecificSource(state, 'FACAD-preCFT-AAU'),
 });
 
 export default connect(mapStateToProps)(App);
