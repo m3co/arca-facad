@@ -6,19 +6,27 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { Row } from 'arca-redux-v4';
+import { makeStyles } from '@material-ui/core/styles';
 
-interface ArcaTableProps {
+const useStyles = makeStyles({
+  table: {
+    height: '100vh',
+  },
+});
+
+interface FacadTableProps {
   rows: Row[],
 }
 
-const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
+const FacadTable: React.FunctionComponent<FacadTableProps> = ({
   rows,
 }) => {
+  const classes = useStyles();
   const namesCells = Object.keys(rows[0]);
 
   return (
-    <TableContainer>
-      <Table size='small'>
+    <TableContainer className={classes.table}>
+      <Table size='small' stickyHeader>
         <TableHead>
           <TableRow>
             {
@@ -48,4 +56,4 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
   );
 };
 
-export default ArcaTable;
+export default FacadTable;

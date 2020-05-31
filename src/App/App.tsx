@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { getSpecificSource, State } from 'arca-redux-v4';
 import { socket } from '../redux/store';
 import Loader from '../Components/Loader/Loader';
-import ArcaTable from '../Components/ArcaTable/ArcaTable';
+import FacadTable from '../Components/FacadTable/FacadTable';
 
 interface AppProps {
   facad: State['Source']['FACAD-preCFT-AAU']
@@ -22,7 +22,7 @@ const App: React.FunctionComponent<AppProps> = ({
     <div className='page'>
       {
         facad.length
-          ? <ArcaTable rows={facad} />
+          ? <FacadTable rows={facad} />
           : <Loader />
       }
     </div>
