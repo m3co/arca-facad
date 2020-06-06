@@ -7,22 +7,30 @@ import Loader from '../Components/Loader/Loader';
 import FacadTable from '../Components/FacadTable/FacadTable';
 
 interface AppProps {
-  facad: State['Source']['FACAD-preCFT-AAU']
+  facadPreCft: State['Source']['FACAD-preCFT-AAU'],
+  facadCft: State['Source']['FACAD-CFT-AAU'],
+  facadKeys: State['Source']['FACAD-preCFT-AAU-Key'],
 }
 
 const App: React.FunctionComponent<AppProps> = ({
-  facad,
+  facadPreCft, facadCft, facadKeys,
 }) => {
   useEffect(() => {
     socket.subscribe('FACAD-preCFT-AAU');
     socket.select('FACAD-preCFT-AAU');
+
+    socket.subscribe('FACAD-CFT-AAU');
+    socket.select('FACAD-CFT-AAU');
+
+    socket.subscribe('FACAD-preCFT-AAU-Key');
+    socket.select('FACAD-preCFT-AAU-Key');
   }, []);
 
   return (
     <div className='page'>
       {
-        facad.length
-          ? <FacadTable rows={facad} />
+        facadPreCft.length
+          ? <FacadTable rows={facadPreCft} />
           : <Loader />
       }
     </div>
@@ -30,7 +38,9 @@ const App: React.FunctionComponent<AppProps> = ({
 };
 
 const mapStateToProps = (state: Store) => ({
-  facad: getSpecificSource(state, 'FACAD-preCFT-AAU'),
+  facadPreCft: getSpecificSource(state, 'FACAD-preCFT-AAU'),
+  facadCft: getSpecificSource(state, 'FACAD-CFT-AAU'),
+  facadKeys: getSpecificSource(state, 'FACAD-preCFT-AAU-Key'),
 });
 
 export default connect(mapStateToProps)(App);
