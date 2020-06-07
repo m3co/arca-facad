@@ -52,14 +52,16 @@ const Tabs: React.FunctionComponent<TabsProps> = ({
         <TabsMain classes={classes} value={currentTab} onChange={handleChange} centered>
           {
             tabs.map((tab, index) => (
-              <TabTitle classes={classesTab} label={tab.label} id={`simple-tab-${index}`} key={`${tab.label}-${index}`}/>
+              <TabTitle classes={classesTab} label={tab.label} id={`simple-tab-${index}`} key={`${tab.label}-${String(index)}`} />
             ))
           }
         </TabsMain>
       </AppBar>
       {
         tabs.map((tab, index) => (
-          <Tab value={currentTab} index={index} children={tab.value} key={String(index)}/>
+          <Tab value={currentTab} index={index} key={String(index)}>
+            {tab.value}
+          </Tab>
         ))
       }
     </div>

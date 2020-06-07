@@ -4,7 +4,10 @@ import { connect } from 'react-redux';
 import { getSpecificSource, State } from 'arca-redux-v4';
 import { socket } from '../redux/store';
 import Loader from '../Components/Loader/Loader';
-import FacadTable from '../Components/FacadTable/FacadTable';
+import FacadPreCftTable from '../Components/Table/FacadPreCftTable/FacadPreCftTable';
+import FacadKeysTable from '../Components/Table/FacadKeysTable/FacadKeysTable';
+import FacadCftTable from '../Components/Table/FacadCftTable/FacadCftTable';
+import Tabs from '../Tabs/Tabs';
 
 interface AppProps {
   facadPreCft: State['Source']['FACAD-preCFT-AAU'],
@@ -26,11 +29,26 @@ const App: React.FunctionComponent<AppProps> = ({
     socket.select('FACAD-preCFT-AAU-Key');
   }, []);
 
+  const tabs = [
+    {
+      value: <FacadKeysTable rows={facadKeys} />,
+      label: 'Keys',
+    },
+    {
+      value: <FacadPreCftTable rows={facadPreCft} />,
+      label: 'preCFT',
+    },
+    {
+      value: <FacadCftTable rows={facadCft} />,
+      label: 'CFT',
+    },
+  ];
+
   return (
     <div className='page'>
       {
-        facadPreCft.length
-          ? <FacadTable rows={facadPreCft} />
+        facadPreCft.length && facadCft.length && facadKeys.length
+          ? <Tabs tabs={tabs} />
           : <Loader />
       }
     </div>
