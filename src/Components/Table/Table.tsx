@@ -14,13 +14,13 @@ import Input from '@material-ui/core/Input';
 import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 import { Row, State } from 'arca-redux-v4';
-import { useStyles } from '../styles';
+import { useStyles } from './styles';
 
-interface FacadCftTableProps {
-  rows: State['Source']['FACAD-CFT-AAU'],
+interface ArcaTableProps {
+  rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'] | State['Source']['FACAD-preCFT-AAU'],
 }
 
-const FacadCftTable: React.FunctionComponent<FacadCftTableProps> = ({
+const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
   rows,
 }) => {
   const classes = useStyles();
@@ -37,20 +37,26 @@ const FacadCftTable: React.FunctionComponent<FacadCftTableProps> = ({
         <Table size='small' stickyHeader>
           <TableHead>
             <TableRow>
+              <TableCell key='action-head' />
               {
                 namesCells.map((col, i) => (
                   <TableCell key={`${col}-${String(i)}`}>{col}</TableCell>
                 ))
               }
-              <TableCell key='action-head' />
             </TableRow>
           </TableHead>
           <TableBody>
             {
-              rows.map((row, index) => (
+              [...rows].map((row, index) => (
                 rowInEdit === index
                   ? (
                     <TableRow className={classes.rowEdit} key={`$row-${String(index)}`}>
+                      <TableCell className={classes.actionCell} key={`$actions-${String(index)}`}>
+                        <ButtonGroup variant='text' aria-label='text primary button group'>
+                          <Button><DoneIcon className={classes.actionIcon} /></Button>
+                          <Button><ClearIcon className={classes.actionIcon} /></Button>
+                        </ButtonGroup>
+                      </TableCell>
                       {namesCells.map((key: keyof Row, i) => (
                         <TableCell key={`key-${key}-${String(i)}}`}>
                           <Input
@@ -59,16 +65,16 @@ const FacadCftTable: React.FunctionComponent<FacadCftTableProps> = ({
                           />
                         </TableCell>
                       ))}
-                      <TableCell key={`$actions-${String(index)}`}>
-                        <ButtonGroup variant='text' aria-label='text primary button group'>
-                          <Button><DoneIcon className={classes.action} /></Button>
-                          <Button><ClearIcon className={classes.action} /></Button>
-                        </ButtonGroup>
-                      </TableCell>
                     </TableRow>
                   )
                   : (
                     <TableRow className={classes.row} key={`$row-${String(index)}`}>
+                      <TableCell className={classes.actionCell} key={`$actions-${String(index)}`}>
+                        <ButtonGroup variant='text' aria-label='text primary button group'>
+                          <Button onClick={handleEditMode(index)}><EditIcon className={classes.actionIcon} /></Button>
+                          <Button><DeleteIcon className={classes.actionIcon} /></Button>
+                        </ButtonGroup>
+                      </TableCell>
                       {
                         namesCells.map((key: keyof Row, i) => (
                           <TableCell key={`key-${key}-${String(i)}}`}>
@@ -76,12 +82,6 @@ const FacadCftTable: React.FunctionComponent<FacadCftTableProps> = ({
                           </TableCell>
                         ))
                       }
-                      <TableCell key={`$actions-${String(index)}`}>
-                        <ButtonGroup variant='text' aria-label='text primary button group'>
-                          <Button onClick={handleEditMode(index)}><EditIcon className={classes.action} /></Button>
-                          <Button><DeleteIcon className={classes.action} /></Button>
-                        </ButtonGroup>
-                      </TableCell>
                     </TableRow>
                   )
               ))
@@ -93,4 +93,4 @@ const FacadCftTable: React.FunctionComponent<FacadCftTableProps> = ({
   );
 };
 
-export default FacadCftTable;
+export default ArcaTable;

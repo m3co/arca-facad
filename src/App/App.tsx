@@ -4,10 +4,8 @@ import { connect } from 'react-redux';
 import { getSpecificSource, State } from 'arca-redux-v4';
 import { socket } from '../redux/store';
 import Loader from '../Components/Loader/Loader';
-import FacadPreCftTable from '../Components/Table/FacadPreCftTable/FacadPreCftTable';
-import FacadKeysTable from '../Components/Table/FacadKeysTable/FacadKeysTable';
-import FacadCftTable from '../Components/Table/FacadCftTable/FacadCftTable';
-import Tabs from '../Tabs/Tabs';
+import ArcaTable from '../Components/Table/Table';
+import Tabs from '../Components/Tabs/Tabs';
 
 interface AppProps {
   facadPreCft: State['Source']['FACAD-preCFT-AAU'],
@@ -31,15 +29,15 @@ const App: React.FunctionComponent<AppProps> = ({
 
   const tabs = [
     {
-      value: <FacadKeysTable rows={facadKeys} />,
+      value: <ArcaTable rows={facadKeys} />,
       label: 'Keys',
     },
     {
-      value: <FacadPreCftTable rows={facadPreCft} />,
+      value: <ArcaTable rows={facadPreCft} />,
       label: 'preCFT',
     },
     {
-      value: <FacadCftTable rows={facadCft} />,
+      value: <ArcaTable rows={facadCft} />,
       label: 'CFT',
     },
   ];

@@ -12,11 +12,17 @@ export const useStyles = makeStyles({
   rowEdit: {
     boxShadow: '0 0 30px rgba(0,0,0,0.5)',
   },
-  action: {
+  actionCell: {
+    padding: '0 !important',
+  },
+  actionIcon: {
     opacity: '0.6',
     fontSize: 18,
   },
   input: {
     width: '100%',
+    '&:after': {
+      borderColor: '#61dafb',
+    },
   },
 });
