@@ -6,6 +6,7 @@ import { socket } from '../redux/store';
 import Loader from '../Components/Loader/Loader';
 import ArcaTable from '../Components/Table/Table';
 import Tabs from '../Components/Tabs/Tabs';
+import { FACAD_PRE_CFT_AAU, FACAD_CFT_AAU, FACAD_PRE_CFT_AAU_KEY } from '../utils/constants/sources';
 
 interface AppProps {
   facadPreCft: State['Source']['FACAD-preCFT-AAU'],
@@ -17,27 +18,27 @@ const App: React.FunctionComponent<AppProps> = ({
   facadPreCft, facadCft, facadKeys,
 }) => {
   useEffect(() => {
-    socket.subscribe('FACAD-preCFT-AAU');
-    socket.select('FACAD-preCFT-AAU');
+    socket.subscribe(FACAD_PRE_CFT_AAU);
+    socket.select(FACAD_PRE_CFT_AAU);
 
-    socket.subscribe('FACAD-CFT-AAU');
-    socket.select('FACAD-CFT-AAU');
+    socket.subscribe(FACAD_CFT_AAU);
+    socket.select(FACAD_CFT_AAU);
 
-    socket.subscribe('FACAD-preCFT-AAU-Key');
-    socket.select('FACAD-preCFT-AAU-Key');
+    socket.subscribe(FACAD_PRE_CFT_AAU_KEY);
+    socket.select(FACAD_PRE_CFT_AAU_KEY);
   }, []);
 
   const tabs = [
     {
-      value: <ArcaTable rows={facadKeys} />,
+      value: <ArcaTable rows={facadKeys} source={FACAD_PRE_CFT_AAU_KEY} />,
       label: 'Keys',
     },
     {
-      value: <ArcaTable rows={facadPreCft} />,
+      value: <ArcaTable rows={facadPreCft} source={FACAD_PRE_CFT_AAU} />,
       label: 'preCFT',
     },
     {
-      value: <ArcaTable rows={facadCft} />,
+      value: <ArcaTable rows={facadCft} source={FACAD_CFT_AAU} />,
       label: 'CFT',
     },
   ];
@@ -54,9 +55,9 @@ const App: React.FunctionComponent<AppProps> = ({
 };
 
 const mapStateToProps = (state: Store) => ({
-  facadPreCft: getSpecificSource(state, 'FACAD-preCFT-AAU'),
-  facadCft: getSpecificSource(state, 'FACAD-CFT-AAU'),
-  facadKeys: getSpecificSource(state, 'FACAD-preCFT-AAU-Key'),
+  facadPreCft: getSpecificSource(state, FACAD_PRE_CFT_AAU),
+  facadCft: getSpecificSource(state, FACAD_CFT_AAU),
+  facadKeys: getSpecificSource(state, FACAD_PRE_CFT_AAU_KEY),
 });
 
 export default connect(mapStateToProps)(App);

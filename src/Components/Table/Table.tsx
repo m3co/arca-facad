@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Paper from '@material-ui/core/Paper';
+import toString from 'lodash/toString';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -15,13 +15,15 @@ import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 import { Row, State } from 'arca-redux-v4';
 import { useStyles } from './styles';
+import { FACAD_PRE_CFT_AAU_KEY } from '../../utils/constants/sources';
 
 interface ArcaTableProps {
   rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'] | State['Source']['FACAD-preCFT-AAU'],
+  source: keyof State['Source'],
 }
 
 const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
-  rows,
+  rows, source,
 }) => {
   const classes = useStyles();
   const namesCells = Object.keys(rows[0]);
