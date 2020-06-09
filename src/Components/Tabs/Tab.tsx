@@ -28,7 +28,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
     >
-      {value === index && children}
+      {children}
     </div>
   );
 };

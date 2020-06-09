@@ -22,7 +22,7 @@ export const useStyles = makeStyles({
   input: {
     width: '100%',
     '&:after': {
-      borderColor: '#61dafb',
+      borderColor: '#61dafb !important',
     },
   },
 });
