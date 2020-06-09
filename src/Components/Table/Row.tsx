@@ -16,19 +16,35 @@ interface ArcaRowProps {
   source: keyof State['Source'],
   id: number,
   namesCells: string[],
+  handleEditMode: (id: number) => void,
 }
 
 const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
-  row, source, id, namesCells,
+  row, source, id, namesCells, handleEditMode,
 }) => {
   const classes = useStyles();
 
-  const [newRow, handleNewRow] = useState({});
+  const [newRow, handleNewRow] = useState(row);
   const handleChange = (cell: keyof Row) => (event: React.ChangeEvent<HTMLInputElement>) => {
     handleNewRow({
       ...newRow,
       [cell]: event.target.value,
     });
+  };
+
+  const onSubmit = () => {
+    console.log('update', newRow);
+    handleEditMode(-1);
+  };
+
+  const onCancel = () => {
+    handleEditMode(-1);
+  };
+
+  const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      onSubmit();
+    }
   };
 
   const getDisabledInput = (value: string) => (
@@ -40,6 +56,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
       case 'Key':
         return (
           <Input
+            onKeyPress={onKeyPress}
             className={classes.input}
             value={toString(newRow[cell])}
             onChange={handleChange(cell)}
@@ -63,8 +80,8 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     <TableRow className={classes.rowEdit}>
       <TableCell className={classes.actionCell} key={`$actions-${String(id)}`}>
         <ButtonGroup variant='text' aria-label='text primary button group'>
-          <Button><DoneIcon className={classes.actionIcon} /></Button>
-          <Button><ClearIcon className={classes.actionIcon} /></Button>
+          <Button onClick={onSubmit}><DoneIcon className={classes.actionIcon} /></Button>
+          <Button onClick={onCancel}><ClearIcon className={classes.actionIcon} /></Button>
         </ButtonGroup>
       </TableCell>
       {namesCells.map((cell: keyof Row, i) => (

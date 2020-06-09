@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -29,6 +29,14 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
     rowToEditMode(id);
   };
 
+  useEffect(() => {
+    document.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        rowToEditMode(-1);
+      }
+    });
+  }, []);
+
   return (
     <TableContainer className={classes.table}>
       <Table size='small' stickyHeader>
@@ -47,7 +55,14 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
             [...rows].map((row, index) => (
               rowInEdit === index
                 ? (
-                  <ArcaRow key={`$row-${String(index)}`} row={row} id={index} source={source} namesCells={namesCells} />
+                  <ArcaRow
+                    key={`$row-${String(index)}`}
+                    row={row}
+                    id={index}
+                    source={source}
+                    namesCells={namesCells}
+                    handleEditMode={rowToEditMode}
+                  />
                 )
                 : (
                   <TableRow className={classes.row} key={`$row-${String(index)}`}>
