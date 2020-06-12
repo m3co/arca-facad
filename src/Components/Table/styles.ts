@@ -25,4 +25,12 @@ export const useStyles = makeStyles({
       borderColor: '#61dafb !important',
     },
   },
+  textField: {
+    width: '100%',
+    '& > div': {
+      '&:after': {
+        borderColor: '#61dafb !important',
+      },
+    },
+  },
 });

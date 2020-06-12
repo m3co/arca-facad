@@ -9,9 +9,11 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Row, State } from 'arca-redux-v4';
 import { useStyles } from './styles';
 import ArcaRow from './Row';
+import { socket } from '../../redux/store';
 
 interface ArcaTableProps {
   rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'] | State['Source']['FACAD-preCFT-AAU'],
@@ -29,6 +31,11 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
     rowToEditMode(id);
   };
 
+  const deleteRow = (row: Row) => () => {
+    console.log('DELETE', row);
+    socket.delete(source, row);
+  };
+
   useEffect(() => {
     document.addEventListener('keydown', (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -42,13 +49,31 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
       <Table size='small' stickyHeader>
         <TableHead>
           <TableRow>
-            <TableCell key='action-head' />
+            <TableCell key='action-head'>
+              <Button onClick={handleEditMode(-2)}><AddCircleIcon className={classes.actionIcon} /></Button>
+            </TableCell>
             {
               namesCells.map((col, i) => (
                 <TableCell key={`${col}-${String(i)}`}>{col}</TableCell>
               ))
             }
           </TableRow>
+          {
+            rowInEdit === -2 && (
+              <ArcaRow
+                key='new-row'
+                row={
+                  {} as State['Source']['FACAD-CFT-AAU'][0] |
+                  State['Source']['FACAD-preCFT-AAU-Key'][0] |
+                  State['Source']['FACAD-preCFT-AAU'][0]
+                }
+                id={-2}
+                source={source}
+                namesCells={namesCells}
+                handleEditMode={rowToEditMode}
+              />
+            )
+          }
         </TableHead>
         <TableBody>
           {
@@ -69,7 +94,7 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
                     <TableCell className={classes.actionCell} key={`$actions-${String(index)}`}>
                       <ButtonGroup variant='text' aria-label='text primary button group'>
                         <Button onClick={handleEditMode(index)}><EditIcon className={classes.actionIcon} /></Button>
-                        <Button><DeleteIcon className={classes.actionIcon} /></Button>
+                        <Button onClick={deleteRow(row)}><DeleteIcon className={classes.actionIcon} /></Button>
                       </ButtonGroup>
                     </TableCell>
                     {

@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import {
+  Row, State, getSearchResult, SearchResultItem,
+} from 'arca-redux-v4';
 import toString from 'lodash/toString';
+import get from 'lodash/get';
+import isObject from 'lodash/isObject';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Input from '@material-ui/core/Input';
-import DoneIcon from '@material-ui/icons/Done';
-import ClearIcon from '@material-ui/icons/Clear';
-import { Row, State } from 'arca-redux-v4';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CancelIcon from '@material-ui/icons/Cancel';
+import TextField from '@material-ui/core/TextField';
+
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useStyles } from './styles';
-import { FACAD_PRE_CFT_AAU_KEY } from '../../utils/constants/sources';
+import { FACAD_PRE_CFT_AAU_KEY, FACAD_CFT_AAU, FACAD_PRE_CFT_AAU } from '../../utils/constants/sources';
+import { socket } from '../../redux/store';
 
 interface ArcaRowProps {
   row: State['Source']['FACAD-CFT-AAU'][0] | State['Source']['FACAD-preCFT-AAU-Key'][0] | State['Source']['FACAD-preCFT-AAU'][0],
@@ -22,18 +31,38 @@ interface ArcaRowProps {
 const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
   row, source, id, namesCells, handleEditMode,
 }) => {
+  const searchResult = useSelector(getSearchResult) || [];
   const classes = useStyles();
 
+  const [inputValue, setInputValue] = useState(row);
   const [newRow, handleNewRow] = useState(row);
-  const handleChange = (cell: keyof Row) => (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleChange = (cell: keyof Row, value: string) => {
+    setInputValue({
+      ...inputValue,
+      [cell]: value,
+    });
+
+    socket.search('AAU', {
+      Search: value,
+      Limit: 10,
+    });
+  };
+
+  const handleSelect = (cell: keyof Row) => (event: any, newValue: SearchResultItem | null) => {
     handleNewRow({
       ...newRow,
-      [cell]: event.target.value,
+      [cell]: newValue,
+    });
+
+    setInputValue({
+      ...inputValue,
+      [cell]: get(newValue, `PK[${cell}]`, ''),
     });
   };
 
   const onSubmit = () => {
-    console.log('update', newRow);
+    socket.update(source, newRow, row);
     handleEditMode(-1);
   };
 
@@ -55,13 +84,45 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     switch (cell) {
       case 'Key':
         return (
-          <Input
-            onKeyPress={onKeyPress}
-            className={classes.input}
-            value={toString(newRow[cell])}
-            onChange={handleChange(cell)}
+          <Autocomplete
+            value={isObject(newRow[cell]) ? newRow[cell] : null}
+            onChange={handleSelect(cell)}
+            options={searchResult}
+            getOptionLabel={(option: SearchResultItem) => get(option, 'Label', option as unknown as string)}
+            getOptionSelected={(option, value) => option.Label === get(value, 'Label', option as unknown as string)}
+
+            inputValue={toString(inputValue[cell])}
+            onInputChange={(event, newInputValue) => {
+              const isSelectedKey = searchResult.some((item: SearchResultItem) => item.PK[cell] === inputValue[cell]);
+
+              if (!isSelectedKey) {
+                handleChange(cell, toString(newInputValue));
+              }
+            }}
+            clearOnEscape
+            renderInput={params => (
+              <TextField
+                {...params}
+                onKeyPress={onKeyPress}
+                className={classes.textField}
+              />
+            )}
           />
         );
+      default:
+        return getDisabledInput(value);
+    }
+  };
+
+  const getFacadCftInput = (cell: keyof Row, value: string) => {
+    switch (cell) {
+      default:
+        return getDisabledInput(value);
+    }
+  };
+
+  const getFacadPreCftInput = (cell: keyof Row, value: string) => {
+    switch (cell) {
       default:
         return getDisabledInput(value);
     }
@@ -71,6 +132,10 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     switch (source) {
       case FACAD_PRE_CFT_AAU_KEY:
         return getFacadKeysInput(cell, value);
+      case FACAD_CFT_AAU:
+        return getFacadCftInput(cell, value);
+      case FACAD_PRE_CFT_AAU:
+        return getFacadPreCftInput(cell, value);
       default:
         return getDisabledInput(value);
     }
@@ -80,8 +145,8 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     <TableRow className={classes.rowEdit}>
       <TableCell className={classes.actionCell} key={`$actions-${String(id)}`}>
         <ButtonGroup variant='text' aria-label='text primary button group'>
-          <Button onClick={onSubmit}><DoneIcon className={classes.actionIcon} /></Button>
-          <Button onClick={onCancel}><ClearIcon className={classes.actionIcon} /></Button>
+          <Button onClick={onSubmit}><CheckCircleIcon className={classes.actionIcon} /></Button>
+          <Button onClick={onCancel}><CancelIcon className={classes.actionIcon} /></Button>
         </ButtonGroup>
       </TableCell>
       {namesCells.map((cell: keyof Row, i) => (
