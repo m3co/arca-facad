@@ -17,11 +17,11 @@ import TextField from '@material-ui/core/TextField';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useStyles } from './styles';
-import { FACAD_PRE_CFT_AAU_KEY, FACAD_CFT_AAU, FACAD_PRE_CFT_AAU } from '../../utils/constants/sources';
+import { FACAD_PRE_CFT_AAU_KEY, FACAD_CFT_AAU, FACAD_PRE_CFT_AAU, AAU } from '../../utils/constants/sources';
 import { socket } from '../../redux/store';
 
 interface ArcaRowProps {
-  row: State['Source']['FACAD-CFT-AAU'][0] | State['Source']['FACAD-preCFT-AAU-Key'][0] | State['Source']['FACAD-preCFT-AAU'][0],
+  row: State['Source']['FACAD-CFT-AAU'][0] | State['Source']['FACAD-preCFT-AAU-Key'][0],
   source: keyof State['Source'],
   id: number,
   namesCells: string[],

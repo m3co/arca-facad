@@ -6,25 +6,18 @@ import { socket } from '../redux/store';
 import Loader from '../Components/Loader/Loader';
 import ArcaTable from '../Components/Table/Table';
 import Tabs from '../Components/Tabs/Tabs';
-import { FACAD_PRE_CFT_AAU, FACAD_CFT_AAU, FACAD_PRE_CFT_AAU_KEY } from '../utils/constants/sources';
+import { FACAD_CFT_AAU, FACAD_PRE_CFT_AAU_KEY } from '../utils/constants/sources';
 
 interface AppProps {
-  facadPreCft: State['Source']['FACAD-preCFT-AAU'],
   facadCft: State['Source']['FACAD-CFT-AAU'],
   facadKeys: State['Source']['FACAD-preCFT-AAU-Key'],
 }
 
 const App: React.FunctionComponent<AppProps> = ({
-  facadPreCft, facadCft, facadKeys,
+  facadCft, facadKeys,
 }) => {
   useEffect(() => {
-    socket.subscribe(FACAD_PRE_CFT_AAU);
-    socket.select(FACAD_PRE_CFT_AAU);
-
-    socket.subscribe(FACAD_CFT_AAU);
     socket.select(FACAD_CFT_AAU);
-
-    socket.subscribe(FACAD_PRE_CFT_AAU_KEY);
     socket.select(FACAD_PRE_CFT_AAU_KEY);
   }, []);
 
@@ -32,10 +25,6 @@ const App: React.FunctionComponent<AppProps> = ({
     {
       value: <ArcaTable rows={facadKeys} source={FACAD_PRE_CFT_AAU_KEY} />,
       label: 'Keys',
-    },
-    {
-      value: <ArcaTable rows={facadPreCft} source={FACAD_PRE_CFT_AAU} />,
-      label: 'preCFT',
     },
     {
       value: <ArcaTable rows={facadCft} source={FACAD_CFT_AAU} />,
@@ -46,7 +35,7 @@ const App: React.FunctionComponent<AppProps> = ({
   return (
     <div className='page'>
       {
-        facadPreCft.length && facadCft.length && facadKeys.length
+        facadCft.length && facadKeys.length
           ? <Tabs tabs={tabs} />
           : <Loader />
       }
@@ -55,7 +44,6 @@ const App: React.FunctionComponent<AppProps> = ({
 };
 
 const mapStateToProps = (state: Store) => ({
-  facadPreCft: getSpecificSource(state, FACAD_PRE_CFT_AAU),
   facadCft: getSpecificSource(state, FACAD_CFT_AAU),
   facadKeys: getSpecificSource(state, FACAD_PRE_CFT_AAU_KEY),
 });

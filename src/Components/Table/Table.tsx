@@ -16,7 +16,7 @@ import ArcaRow from './Row';
 import { socket } from '../../redux/store';
 
 interface ArcaTableProps {
-  rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'] | State['Source']['FACAD-preCFT-AAU'],
+  rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'],
   source: keyof State['Source'],
 }
 
@@ -64,8 +64,7 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
                 key='new-row'
                 row={
                   {} as State['Source']['FACAD-CFT-AAU'][0] |
-                  State['Source']['FACAD-preCFT-AAU-Key'][0] |
-                  State['Source']['FACAD-preCFT-AAU'][0]
+                  State['Source']['FACAD-preCFT-AAU-Key'][0]
                 }
                 id={-2}
                 source={source}
