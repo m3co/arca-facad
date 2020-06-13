@@ -15,6 +15,7 @@ import { useStyles } from './styles';
 import ArcaRow from './Row';
 import { socket } from '../../redux/store';
 import { getColumnOrder } from '../../utils';
+import { FACAD_PRE_CFT_AAU_KEY } from '../../utils/constants/sources';
 
 interface ArcaTableProps {
   rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'],
@@ -50,7 +51,10 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
         <TableHead>
           <TableRow>
             <TableCell key='action-head'>
-              <Button onClick={handleEditMode(-2)}><AddCircleIcon className={classes.actionIcon} /></Button>
+              {
+                source !== FACAD_PRE_CFT_AAU_KEY
+                && <Button onClick={handleEditMode(-2)}><AddCircleIcon className={classes.actionIcon} /></Button>
+              }
             </TableCell>
             {
               namesCells.map((col, i) => (
@@ -91,10 +95,16 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
                 : (
                   <TableRow className={classes.row} key={`$row-${String(index)}`}>
                     <TableCell className={classes.actionCell} key={`$actions-${String(index)}`}>
-                      <ButtonGroup variant='text' aria-label='text primary button group'>
-                        <Button onClick={handleEditMode(index)}><EditIcon className={classes.actionIcon} /></Button>
-                        <Button onClick={deleteRow(row)}><DeleteIcon className={classes.actionIcon} /></Button>
-                      </ButtonGroup>
+                      {
+                        source !== FACAD_PRE_CFT_AAU_KEY
+                          ? (
+                            <ButtonGroup variant='text' aria-label='text primary button group'>
+                              <Button onClick={handleEditMode(index)}><EditIcon className={classes.actionIcon} /></Button>
+                              <Button onClick={deleteRow(row)}><DeleteIcon className={classes.actionIcon} /></Button>
+                            </ButtonGroup>
+                          )
+                          : <Button onClick={handleEditMode(index)}><EditIcon className={classes.actionIcon} /></Button>
+                      }
                     </TableCell>
                     {
                       namesCells.map((cell: keyof Row, i) => (

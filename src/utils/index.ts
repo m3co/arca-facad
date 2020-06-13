@@ -11,4 +11,4 @@ export const getColumnOrder = (source: keyof State['Source']) => {
     default:
       return [];
   }
-}
+};

@@ -17,7 +17,9 @@ import TextField from '@material-ui/core/TextField';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useStyles } from './styles';
-import { FACAD_PRE_CFT_AAU_KEY, FACAD_CFT_AAU, FACAD_PRE_CFT_AAU, AAU } from '../../utils/constants/sources';
+import {
+  FACAD_PRE_CFT_AAU_KEY, FACAD_CFT_AAU, FACAD_PRE_CFT_AAU, AAU,
+} from '../../utils/constants/sources';
 import { socket } from '../../redux/store';
 
 interface ArcaRowProps {
@@ -37,15 +39,18 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
   const [inputValue, setInputValue] = useState(row);
   const [newRow, handleNewRow] = useState(row);
 
-  const handleChange = (cell: keyof Row, value: string) => {
+  const handleChange = (source: keyof State['Source'], cell: keyof Row, value: string) => {
     setInputValue({
       ...inputValue,
       [cell]: value,
     });
 
-    socket.search('AAU', {
+    socket.search(source, {
       Search: value,
       Limit: 10,
+      PK: {
+        Expand: false,
+      } as Row,
     });
   };
 
@@ -61,8 +66,25 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     });
   };
 
+  const onInputChange = (cell: keyof Row) => (event: React.ChangeEvent<{}>, newInputValue: string) => {
+    const isSelectedKey = searchResult.some((item: SearchResultItem) => item.PK[cell] === inputValue[cell]);
+
+    if (!isSelectedKey) {
+      handleChange(AAU, cell, toString(newInputValue));
+    }
+  };
+
   const onSubmit = () => {
-    socket.update(source, newRow, row);
+    switch (source) {
+      case FACAD_PRE_CFT_AAU_KEY:
+        socket.update(source, {
+          ...newRow,
+          Key: get(newRow, 'Key.PK.Key', ''),
+        }, row);
+        break;
+      default:
+        break;
+    }
     handleEditMode(-1);
   };
 
@@ -87,19 +109,14 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
           <Autocomplete
             value={isObject(newRow[cell]) ? newRow[cell] : null}
             onChange={handleSelect(cell)}
-            options={searchResult}
             getOptionLabel={(option: SearchResultItem) => get(option, 'Label', option as unknown as string)}
-            getOptionSelected={(option, value) => option.Label === get(value, 'Label', option as unknown as string)}
+            getOptionSelected={(option, value) => option.Label === get(value, 'Label', value as unknown as string)}
 
             inputValue={toString(inputValue[cell])}
-            onInputChange={(event, newInputValue) => {
-              const isSelectedKey = searchResult.some((item: SearchResultItem) => item.PK[cell] === inputValue[cell]);
+            onInputChange={onInputChange(cell)}
 
-              if (!isSelectedKey) {
-                handleChange(cell, toString(newInputValue));
-              }
-            }}
-            clearOnEscape
+            style={{ width: 300 }}
+            options={searchResult}
             renderInput={params => (
               <TextField
                 {...params}
