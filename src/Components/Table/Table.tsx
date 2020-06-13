@@ -14,6 +14,7 @@ import { Row, State } from 'arca-redux-v4';
 import { useStyles } from './styles';
 import ArcaRow from './Row';
 import { socket } from '../../redux/store';
+import { getColumnOrder } from '../../utils';
 
 interface ArcaTableProps {
   rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'],
@@ -24,7 +25,7 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
   rows, source,
 }) => {
   const classes = useStyles();
-  const namesCells = Object.keys(rows[0]);
+  const namesCells = getColumnOrder(source);
 
   const [rowInEdit, rowToEditMode] = useState(-1);
   const handleEditMode = (id: number) => () => {
@@ -32,7 +33,6 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
   };
 
   const deleteRow = (row: Row) => () => {
-    console.log('DELETE', row);
     socket.delete(source, row);
   };
 
