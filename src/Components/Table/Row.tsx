@@ -76,7 +76,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     });
   };
 
-  const onInputChange = (source: keyof State['Source'], cell: keyof Row, PK?: Row) => (event: React.ChangeEvent<{}>, newInputValue: string) => {
+  const onInputChange = (source: keyof State['Source'], cell: keyof Row, PK?: Row) => (event: React.ChangeEvent<{}>, newInputValue: string) => { // eslint-disable-line max-len
     handleSearch(source, cell, toString(newInputValue), PK);
   };
 
@@ -100,13 +100,13 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
   );
 
   const getComboboxProps = (cell: keyof Row) => ({
-    newRow: newRow,
-    cell: cell,
-    comboboxRow: comboboxRow,
-    searchResult: searchResult,
-    onKeyPress: onKeyPress,
-    handleCombobox: handleCombobox,
-    onInputChange: onInputChange,
+    newRow,
+    cell,
+    comboboxRow,
+    searchResult,
+    onKeyPress,
+    handleCombobox,
+    onInputChange,
   });
 
   const getFacadKeysInput = (cell: keyof Row, value: string) => {
@@ -117,7 +117,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
             {...getComboboxProps(cell)}
             sourceForSearch={AAU}
             foundCell={cell}
-            PK={ { Expand: false } as Row }
+            PK={{ Expand: false } as Row}
           />
         );
       default:
@@ -143,7 +143,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
             value={newRow[cell]}
             onChange={handleChange(cell)}
           />
-        )
+        );
       case 'Key':
         return (
           <ArcaCombobox
@@ -152,7 +152,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
             foundCell={cell}
             PK={{
               Expand: false,
-              ...( isObject(get(newRow, 'Project')) ? { Project: get(newRow, 'Project.PK.ID') } : {} ),
+              ...(isObject(get(newRow, 'Project')) ? { Project: get(newRow, 'Project.PK.ID') } : {}),
             } as Row}
           />
         );
@@ -185,8 +185,8 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
             sourceForSearch={FACAD_PARAMS_BIC}
             foundCell={FIELD as never}
             PK={{
-              ...( isObject(get(newRow, 'BuiltInCategory')) ? { BuiltInCategory: get(newRow, 'BuiltInCategory.PK.BuiltInCategory') } : {} ),
-              ...( get(newRow, 'ReportType') ? { ReportType: get(newRow, 'ReportType') } : {} ),
+              ...(isObject(get(newRow, 'BuiltInCategory')) ? { BuiltInCategory: get(newRow, 'BuiltInCategory.PK.BuiltInCategory') } : {}),
+              ...(get(newRow, 'ReportType') ? { ReportType: get(newRow, 'ReportType') } : {}),
             } as Row}
           />
         );
@@ -207,7 +207,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
   };
 
   return (
-    <TableRow className={ isEditMode ? classes.rowEdit : classes.row }>
+    <TableRow className={isEditMode ? classes.rowEdit : classes.row}>
       <TableCell className={classes.actionCell} key={`$actions-${String(id)}`}>
         <ArcaActions
           id={id}

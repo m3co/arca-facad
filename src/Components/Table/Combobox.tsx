@@ -17,7 +17,8 @@ interface ArcaComboboxProps {
   PK?: Row,
   onKeyPress: (event: React.KeyboardEvent<HTMLInputElement>) => void,
   handleCombobox: (cell: keyof Row, foundCell: keyof Row) => (event: any, newValue: SearchResultItem | null) => void,
-  onInputChange: (source: keyof State['Source'], cell: keyof Row, PK?: Row) => (event: React.ChangeEvent<{}>, newInputValue: string) => void,
+  onInputChange: (source: keyof State['Source'], cell: keyof Row, PK?: Row) =>
+  (event: React.ChangeEvent<{}>, newInputValue: string) => void,
 }
 
 const ArcaCombobox: React.FunctionComponent<ArcaComboboxProps> = ({
@@ -49,7 +50,7 @@ const ArcaCombobox: React.FunctionComponent<ArcaComboboxProps> = ({
         />
       )}
     />
-  ); 
+  );
 };
 
 export default ArcaCombobox;

@@ -20,7 +20,7 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
   rows, source,
 }) => {
   const classes = useStyles();
-  const columnsOrder = getColumnOrder(source)
+  const columnsOrder = getColumnOrder(source);
   const namesCells = columnsOrder.length ? columnsOrder : Object.keys(rows[0]);
 
   const [rowInEdit, rowToEditMode] = useState(-1);
@@ -48,7 +48,7 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
           handleEditMode={handleEditMode}
           withoutAddButton={source === FACAD_PRE_CFT_AAU_KEY}
           isEditMode={rowInEdit === -2}
-          addingRow={
+          addingRow={(
             <ArcaRow
               key='new-row'
               row={{} as Row}
@@ -60,7 +60,7 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
               isEditMode={rowInEdit === -2}
               deleteRow={deleteRow}
             />
-          }
+          )}
         />
         <TableBody>
           {

@@ -26,7 +26,7 @@ export const useStyles = makeStyles({
     },
     '&.Mui-focused' : {
       width: 200,
-    }
+    },
   },
   textField: {
     width: '100%',
@@ -37,7 +37,7 @@ export const useStyles = makeStyles({
     },
     '&.Mui-focused' : {
       width: 200,
-    }
+    },
   },
   select: {
     width: '100%',
@@ -46,11 +46,11 @@ export const useStyles = makeStyles({
     },
     '&.Mui-focused' : {
       width: 200,
-    }
+    },
   },
   combobox: {
     '&.Mui-focused' : {
       width: 200,
-    }
-  }
+    },
+  },
 });
