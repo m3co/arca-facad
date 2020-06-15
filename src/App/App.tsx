@@ -23,22 +23,18 @@ const App: React.FunctionComponent<AppProps> = ({
 
   const tabs = [
     {
-      value: <ArcaTable rows={facadKeys} source={FACAD_PRE_CFT_AAU_KEY} />,
+      value: facadKeys.length ? <ArcaTable rows={facadKeys} source={FACAD_PRE_CFT_AAU_KEY} /> : <Loader />,
       label: 'Keys',
     },
     {
-      value: <ArcaTable rows={facadCft} source={FACAD_CFT_AAU} />,
+      value: facadCft.length ? <ArcaTable rows={facadCft} source={FACAD_CFT_AAU} /> : <Loader />,
       label: 'CFT',
     },
   ];
 
   return (
     <div className='page'>
-      {
-        facadCft.length && facadKeys.length
-          ? <Tabs tabs={tabs} />
-          : <Loader />
-      }
+      <Tabs tabs={tabs} />
     </div>
   );
 };
