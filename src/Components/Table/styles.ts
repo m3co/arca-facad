@@ -24,6 +24,9 @@ export const useStyles = makeStyles({
     '&:after': {
       borderColor: '#61dafb !important',
     },
+    '&.Mui-focused' : {
+      width: 200,
+    }
   },
   textField: {
     width: '100%',
@@ -32,5 +35,22 @@ export const useStyles = makeStyles({
         borderColor: '#61dafb !important',
       },
     },
+    '&.Mui-focused' : {
+      width: 200,
+    }
   },
+  select: {
+    width: '100%',
+    '&:after': {
+      borderColor: '#61dafb !important',
+    },
+    '&.Mui-focused' : {
+      width: 200,
+    }
+  },
+  combobox: {
+    '&.Mui-focused' : {
+      width: 200,
+    }
+  }
 });

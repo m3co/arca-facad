@@ -8,88 +8,85 @@ import get from 'lodash/get';
 import isObject from 'lodash/isObject';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Input from '@material-ui/core/Input';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import CancelIcon from '@material-ui/icons/Cancel';
-import TextField from '@material-ui/core/TextField';
-
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import { useStyles } from './styles';
 import {
-  FACAD_PRE_CFT_AAU_KEY, FACAD_CFT_AAU, FACAD_PRE_CFT_AAU, AAU,
+  FACAD_PRE_CFT_AAU_KEY, FACAD_CFT_AAU, AAU, FACAD_BUILT_IN_CATEGORIES,
+  FACAD_PARAMS_BIC, PROJECTS,
 } from '../../utils/constants/sources';
 import { socket } from '../../redux/store';
+import { REPORT_TYPE } from '../../utils/constants/selects';
+import ArcaActions from './Actions';
+import ArcaCombobox from './Combobox';
+import { ID, FIELD } from '../../utils/constants/cells';
+import { checkAllCells } from '../../utils';
 
 interface ArcaRowProps {
-  row: State['Source']['FACAD-CFT-AAU'][0] | State['Source']['FACAD-preCFT-AAU-Key'][0],
+  row: Row,
   source: keyof State['Source'],
   id: number,
   namesCells: string[],
-  handleEditMode: (id: number) => void,
+  handleEditMode: (id: number) => () => void,
+  rowToEditMode: (id: number) => void,
+  isEditMode: boolean,
+  deleteRow: (row: Row) => () => void,
+  isDeleteNotSupport?: boolean,
 }
 
 const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
-  row, source, id, namesCells, handleEditMode,
+  row, source, id, namesCells, handleEditMode, isEditMode, deleteRow, isDeleteNotSupport, rowToEditMode,
 }) => {
   const searchResult = useSelector(getSearchResult) || [];
   const classes = useStyles();
 
-  const [inputValue, setInputValue] = useState(row);
+  const [comboboxRow, setComboboxRow] = useState(row);
   const [newRow, handleNewRow] = useState(row);
 
-  const handleChange = (source: keyof State['Source'], cell: keyof Row, value: string) => {
-    setInputValue({
-      ...inputValue,
+  const handleChange = (cell: keyof Row) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    handleNewRow({
+      ...newRow,
+      [cell]: event.target.value,
+    });
+  };
+
+  const handleSearch = (source: keyof State['Source'], cell: keyof Row, value: string, PK?: Row) => {
+    setComboboxRow({
+      ...comboboxRow,
       [cell]: value,
     });
 
     socket.search(source, {
       Search: value,
       Limit: 10,
-      PK: {
-        Expand: false,
-      } as Row,
+      PK,
     });
   };
 
-  const handleSelect = (cell: keyof Row) => (event: any, newValue: SearchResultItem | null) => {
+  const handleCombobox = (cell: keyof Row, foundCell: keyof Row) => (event: any, newValue: SearchResultItem | null) => {
     handleNewRow({
       ...newRow,
       [cell]: newValue,
     });
 
-    setInputValue({
-      ...inputValue,
-      [cell]: get(newValue, `PK[${cell}]`, ''),
+    setComboboxRow({
+      ...comboboxRow,
+      [cell]: get(newValue, `PK[${foundCell}]`, ''),
     });
   };
 
-  const onInputChange = (cell: keyof Row) => (event: React.ChangeEvent<{}>, newInputValue: string) => {
-    const isSelectedKey = searchResult.some((item: SearchResultItem) => item.PK[cell] === inputValue[cell]);
-
-    if (!isSelectedKey) {
-      handleChange(AAU, cell, toString(newInputValue));
-    }
+  const onInputChange = (source: keyof State['Source'], cell: keyof Row, PK?: Row) => (event: React.ChangeEvent<{}>, newInputValue: string) => {
+    handleSearch(source, cell, toString(newInputValue), PK);
   };
 
   const onSubmit = () => {
-    switch (source) {
-      case FACAD_PRE_CFT_AAU_KEY:
-        socket.update(source, {
-          ...newRow,
-          Key: get(newRow, 'Key.PK.Key', ''),
-        }, row);
-        break;
-      default:
-        break;
-    }
-    handleEditMode(-1);
+    socket.update(source, checkAllCells(newRow, namesCells), row);
+    rowToEditMode(-1);
   };
 
   const onCancel = () => {
-    handleEditMode(-1);
+    rowToEditMode(-1);
   };
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -102,28 +99,25 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     <Input className={classes.input} value={value} disabled />
   );
 
+  const getComboboxProps = (cell: keyof Row) => ({
+    newRow: newRow,
+    cell: cell,
+    comboboxRow: comboboxRow,
+    searchResult: searchResult,
+    onKeyPress: onKeyPress,
+    handleCombobox: handleCombobox,
+    onInputChange: onInputChange,
+  });
+
   const getFacadKeysInput = (cell: keyof Row, value: string) => {
     switch (cell) {
       case 'Key':
         return (
-          <Autocomplete
-            value={isObject(newRow[cell]) ? newRow[cell] : null}
-            onChange={handleSelect(cell)}
-            getOptionLabel={(option: SearchResultItem) => get(option, 'Label', option as unknown as string)}
-            getOptionSelected={(option, value) => option.Label === get(value, 'Label', value as unknown as string)}
-
-            inputValue={toString(inputValue[cell])}
-            onInputChange={onInputChange(cell)}
-
-            style={{ width: 300 }}
-            options={searchResult}
-            renderInput={params => (
-              <TextField
-                {...params}
-                onKeyPress={onKeyPress}
-                className={classes.textField}
-              />
-            )}
+          <ArcaCombobox
+            {...getComboboxProps(cell)}
+            sourceForSearch={AAU}
+            foundCell={cell}
+            PK={ { Expand: false } as Row }
           />
         );
       default:
@@ -133,13 +127,69 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
 
   const getFacadCftInput = (cell: keyof Row, value: string) => {
     switch (cell) {
-      default:
-        return getDisabledInput(value);
-    }
-  };
-
-  const getFacadPreCftInput = (cell: keyof Row, value: string) => {
-    switch (cell) {
+      case 'Project':
+        return (
+          <ArcaCombobox
+            {...getComboboxProps(cell)}
+            sourceForSearch={PROJECTS}
+            foundCell={ID as never}
+          />
+        );
+      case 'Family':
+      case 'Type':
+        return (
+          <Input
+            className={classes.input}
+            value={newRow[cell]}
+            onChange={handleChange(cell)}
+          />
+        )
+      case 'Key':
+        return (
+          <ArcaCombobox
+            {...getComboboxProps(cell)}
+            sourceForSearch={AAU}
+            foundCell={cell}
+            PK={{
+              Expand: false,
+              ...( isObject(get(newRow, 'Project')) ? { Project: get(newRow, 'Project.PK.ID') } : {} ),
+            } as Row}
+          />
+        );
+      case 'BuiltInCategory':
+        return (
+          <ArcaCombobox
+            {...getComboboxProps(cell)}
+            sourceForSearch={FACAD_BUILT_IN_CATEGORIES}
+            foundCell={cell}
+          />
+        );
+      case 'ReportType':
+        return (
+          <Select
+            value={newRow[cell]}
+            onChange={handleChange(cell)}
+            className={classes.select}
+          >
+            {
+              REPORT_TYPE.map((TYPE, i) => <MenuItem key={`${TYPE}-${String(i)}`} value={TYPE}>{TYPE}</MenuItem>)
+            }
+          </Select>
+        );
+      case 'KeynoteField':
+      case 'ConstraintField':
+      case 'QuantityField':
+        return (
+          <ArcaCombobox
+            {...getComboboxProps(cell)}
+            sourceForSearch={FACAD_PARAMS_BIC}
+            foundCell={FIELD as never}
+            PK={{
+              ...( isObject(get(newRow, 'BuiltInCategory')) ? { BuiltInCategory: get(newRow, 'BuiltInCategory.PK.BuiltInCategory') } : {} ),
+              ...( get(newRow, 'ReportType') ? { ReportType: get(newRow, 'ReportType') } : {} ),
+            } as Row}
+          />
+        );
       default:
         return getDisabledInput(value);
     }
@@ -151,24 +201,32 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
         return getFacadKeysInput(cell, value);
       case FACAD_CFT_AAU:
         return getFacadCftInput(cell, value);
-      case FACAD_PRE_CFT_AAU:
-        return getFacadPreCftInput(cell, value);
       default:
         return getDisabledInput(value);
     }
   };
 
   return (
-    <TableRow className={classes.rowEdit}>
+    <TableRow className={ isEditMode ? classes.rowEdit : classes.row }>
       <TableCell className={classes.actionCell} key={`$actions-${String(id)}`}>
-        <ButtonGroup variant='text' aria-label='text primary button group'>
-          <Button onClick={onSubmit}><CheckCircleIcon className={classes.actionIcon} /></Button>
-          <Button onClick={onCancel}><CancelIcon className={classes.actionIcon} /></Button>
-        </ButtonGroup>
+        <ArcaActions
+          id={id}
+          row={row}
+          isEditMode={isEditMode}
+          isDeleteNotSupport={isDeleteNotSupport}
+          handleEditMode={handleEditMode}
+          deleteRow={deleteRow}
+          onSubmit={onSubmit}
+          onCancel={onCancel}
+        />
       </TableCell>
       {namesCells.map((cell: keyof Row, i) => (
         <TableCell key={`key-${cell}-${String(i)}}`}>
-          { getInput(source, cell, toString(row[cell])) }
+          {
+            isEditMode
+              ? getInput(source, cell, toString(row[cell]))
+              : row[cell]
+          }
         </TableCell>
       ))}
     </TableRow>

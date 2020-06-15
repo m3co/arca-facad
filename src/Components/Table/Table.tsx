@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Row, State } from 'arca-redux-v4';
+
 import { useStyles } from './styles';
-import ArcaRow from './Row';
 import { socket } from '../../redux/store';
 import { getColumnOrder } from '../../utils';
 import { FACAD_PRE_CFT_AAU_KEY } from '../../utils/constants/sources';
+import ArcaTableHeader from './TableHeader';
+import ArcaRow from './Row';
 
 interface ArcaTableProps {
   rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'],
@@ -26,7 +20,8 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
   rows, source,
 }) => {
   const classes = useStyles();
-  const namesCells = getColumnOrder(source);
+  const columnsOrder = getColumnOrder(source)
+  const namesCells = columnsOrder.length ? columnsOrder : Object.keys(rows[0]);
 
   const [rowInEdit, rowToEditMode] = useState(-1);
   const handleEditMode = (id: number) => () => {
@@ -48,73 +43,40 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
   return (
     <TableContainer className={classes.table}>
       <Table size='small' stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell key='action-head'>
-              {
-                source !== FACAD_PRE_CFT_AAU_KEY
-                && <Button onClick={handleEditMode(-2)}><AddCircleIcon className={classes.actionIcon} /></Button>
-              }
-            </TableCell>
-            {
-              namesCells.map((col, i) => (
-                <TableCell key={`${col}-${String(i)}`}>{col}</TableCell>
-              ))
-            }
-          </TableRow>
-          {
-            rowInEdit === -2 && (
-              <ArcaRow
-                key='new-row'
-                row={
-                  {} as State['Source']['FACAD-CFT-AAU'][0] |
-                  State['Source']['FACAD-preCFT-AAU-Key'][0]
-                }
-                id={-2}
-                source={source}
-                namesCells={namesCells}
-                handleEditMode={rowToEditMode}
-              />
-            )
+        <ArcaTableHeader
+          namesCells={namesCells}
+          handleEditMode={handleEditMode}
+          withoutAddButton={source === FACAD_PRE_CFT_AAU_KEY}
+          isEditMode={rowInEdit === -2}
+          addingRow={
+            <ArcaRow
+              key='new-row'
+              row={{} as Row}
+              id={-2}
+              source={source}
+              namesCells={namesCells}
+              rowToEditMode={rowToEditMode}
+              handleEditMode={handleEditMode}
+              isEditMode={rowInEdit === -2}
+              deleteRow={deleteRow}
+            />
           }
-        </TableHead>
+        />
         <TableBody>
           {
             [...rows].map((row, index) => (
-              rowInEdit === index
-                ? (
-                  <ArcaRow
-                    key={`$row-${String(index)}`}
-                    row={row}
-                    id={index}
-                    source={source}
-                    namesCells={namesCells}
-                    handleEditMode={rowToEditMode}
-                  />
-                )
-                : (
-                  <TableRow className={classes.row} key={`$row-${String(index)}`}>
-                    <TableCell className={classes.actionCell} key={`$actions-${String(index)}`}>
-                      {
-                        source !== FACAD_PRE_CFT_AAU_KEY
-                          ? (
-                            <ButtonGroup variant='text' aria-label='text primary button group'>
-                              <Button onClick={handleEditMode(index)}><EditIcon className={classes.actionIcon} /></Button>
-                              <Button onClick={deleteRow(row)}><DeleteIcon className={classes.actionIcon} /></Button>
-                            </ButtonGroup>
-                          )
-                          : <Button onClick={handleEditMode(index)}><EditIcon className={classes.actionIcon} /></Button>
-                      }
-                    </TableCell>
-                    {
-                      namesCells.map((cell: keyof Row, i) => (
-                        <TableCell key={`key-${cell}-${String(i)}}`}>
-                          { row[cell] }
-                        </TableCell>
-                      ))
-                    }
-                  </TableRow>
-                )
+              <ArcaRow
+                key={`$row-${String(index)}`}
+                row={row}
+                id={index}
+                source={source}
+                namesCells={namesCells}
+                rowToEditMode={rowToEditMode}
+                handleEditMode={handleEditMode}
+                isEditMode={rowInEdit === index}
+                deleteRow={deleteRow}
+                isDeleteNotSupport={source === FACAD_PRE_CFT_AAU_KEY}
+              />
             ))
           }
         </TableBody>
