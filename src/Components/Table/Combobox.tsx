@@ -19,10 +19,11 @@ interface ArcaComboboxProps {
   handleCombobox: (cell: keyof Row, foundCell: keyof Row) => (event: any, newValue: SearchResultItem | null) => void,
   onInputChange: (source: keyof State['Source'], cell: keyof Row, PK?: Row) =>
   (event: React.ChangeEvent<{}>, newInputValue: string) => void,
+  onBlur: () => void,
 }
 
 const ArcaCombobox: React.FunctionComponent<ArcaComboboxProps> = ({
-  newRow, cell, foundCell, comboboxRow, handleCombobox, onInputChange, searchResult, sourceForSearch, onKeyPress, PK,
+  newRow, cell, foundCell, comboboxRow, handleCombobox, onInputChange, searchResult, sourceForSearch, onKeyPress, PK, onBlur,
 }) => {
   const classes = useStyles();
 
@@ -40,6 +41,7 @@ const ArcaCombobox: React.FunctionComponent<ArcaComboboxProps> = ({
           : () => {}
       }
 
+      onBlur={onBlur}
       className={classes.combobox}
       options={searchResult}
       renderInput={params => (

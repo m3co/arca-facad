@@ -30,13 +30,11 @@ interface ArcaRowProps {
   namesCells: string[],
   handleEditMode: (id: number) => () => void,
   rowToEditMode: (id: number) => void,
-  isEditMode: boolean,
-  deleteRow: (row: Row) => () => void,
-  isDeleteNotSupport?: boolean,
+  isNewRow?: boolean,
 }
 
 const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
-  row, source, id, namesCells, handleEditMode, isEditMode, deleteRow, isDeleteNotSupport, rowToEditMode,
+  row, source, id, namesCells, handleEditMode, rowToEditMode, isNewRow,
 }) => {
   const searchResult = useSelector(getSearchResult) || [];
   const classes = useStyles();
@@ -81,7 +79,12 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
   };
 
   const onSubmit = () => {
-    socket.update(source, checkAllCells(newRow, namesCells), row);
+    if (isNewRow) {
+      socket.insert(source, checkAllCells(newRow, namesCells));
+    } else {
+      socket.update(source, checkAllCells(newRow, namesCells), row);
+    }
+
     rowToEditMode(-1);
   };
 
@@ -93,6 +96,13 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     if (event.key === 'Enter') {
       onSubmit();
     }
+  };
+
+  const onBlurCombobox = () => {
+    socket.search(source, {
+      Search: 'FAKE REQUEST',
+      Limit: 10,
+    });
   };
 
   const getDisabledInput = (value: string) => (
@@ -107,6 +117,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     onKeyPress,
     handleCombobox,
     onInputChange,
+    onBlur: onBlurCombobox,
   });
 
   const getFacadKeysInput = (cell: keyof Row, value: string) => {
@@ -140,7 +151,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
         return (
           <Input
             className={classes.input}
-            value={newRow[cell]}
+            value={get(newRow, cell, '')}
             onChange={handleChange(cell)}
           />
         );
@@ -167,7 +178,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
       case 'ReportType':
         return (
           <Select
-            value={newRow[cell]}
+            value={get(newRow, cell, '')}
             onChange={handleChange(cell)}
             className={classes.select}
           >
@@ -207,26 +218,19 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
   };
 
   return (
-    <TableRow className={isEditMode ? classes.rowEdit : classes.row}>
+    <TableRow className={classes.rowEdit}>
       <TableCell className={classes.actionCell} key={`$actions-${String(id)}`}>
         <ArcaActions
           id={id}
           row={row}
-          isEditMode={isEditMode}
-          isDeleteNotSupport={isDeleteNotSupport}
           handleEditMode={handleEditMode}
-          deleteRow={deleteRow}
           onSubmit={onSubmit}
           onCancel={onCancel}
         />
       </TableCell>
       {namesCells.map((cell: keyof Row, i) => (
         <TableCell key={`key-${cell}-${String(i)}}`}>
-          {
-            isEditMode
-              ? getInput(source, cell, toString(row[cell]))
-              : row[cell]
-          }
+          { getInput(source, cell, toString(row[cell])) }
         </TableCell>
       ))}
     </TableRow>

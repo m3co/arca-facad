@@ -11,18 +11,17 @@ import { useStyles } from './styles';
 interface ArcaActionsProps {
   id: number,
   row: Row,
-  isEditMode: boolean,
-  isDeleteNotSupport?: boolean,
-  handleEditMode: (id: number) => () => void,
-  deleteRow: (row: Row) => () => void,
-  onSubmit: (e: React.MouseEvent) => void,
-  onCancel: (e: React.MouseEvent) => void,
+  handleEditMode?: (id: number) => () => void,
+  deleteRow?: (row: Row) => () => void,
+  onSubmit?: (e: React.MouseEvent) => void,
+  onCancel?: (e: React.MouseEvent) => void,
 }
 
 const ArcaActions: React.FunctionComponent<ArcaActionsProps> = ({
-  row, id, handleEditMode, isEditMode, deleteRow, onSubmit, onCancel, isDeleteNotSupport,
+  row, id, handleEditMode, deleteRow, onSubmit, onCancel,
 }) => {
   const classes = useStyles();
+  const isEditMode = onSubmit && onCancel;
 
   return (
     <Fragment>
@@ -37,7 +36,7 @@ const ArcaActions: React.FunctionComponent<ArcaActionsProps> = ({
           : (
             <ButtonGroup variant='text'>
               <Button onClick={handleEditMode(id)}><EditIcon className={classes.actionIcon} /></Button>
-              { !isDeleteNotSupport && <Button onClick={deleteRow(row)}><DeleteIcon className={classes.actionIcon} /></Button> }
+              { deleteRow && <Button onClick={deleteRow(row)}><DeleteIcon className={classes.actionIcon} /></Button> }
             </ButtonGroup>
           )
       }

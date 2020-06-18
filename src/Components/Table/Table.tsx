@@ -3,16 +3,18 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableContainer from '@material-ui/core/TableContainer';
 import { Row, State } from 'arca-redux-v4';
-
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
 import { useStyles } from './styles';
 import { socket } from '../../redux/store';
 import { getColumnOrder } from '../../utils';
 import { FACAD_PRE_CFT_AAU_KEY } from '../../utils/constants/sources';
 import ArcaTableHeader from './TableHeader';
 import ArcaRow from './Row';
+import ArcaActions from './Actions';
 
 interface ArcaTableProps {
-  rows: State['Source']['FACAD-CFT-AAU'] | State['Source']['FACAD-preCFT-AAU-Key'],
+  rows: Row[],
   source: keyof State['Source'],
 }
 
@@ -40,13 +42,15 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
     });
   }, []);
 
+  const isDeleteNotSupport = source === FACAD_PRE_CFT_AAU_KEY;
+
   return (
     <TableContainer className={classes.table}>
       <Table size='small' stickyHeader>
         <ArcaTableHeader
           namesCells={namesCells}
           handleEditMode={handleEditMode}
-          withoutAddButton={source === FACAD_PRE_CFT_AAU_KEY}
+          withoutAddButton={isDeleteNotSupport}
           isEditMode={rowInEdit === -2}
           addingRow={(
             <ArcaRow
@@ -57,27 +61,47 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
               namesCells={namesCells}
               rowToEditMode={rowToEditMode}
               handleEditMode={handleEditMode}
-              isEditMode={rowInEdit === -2}
-              deleteRow={deleteRow}
+              isNewRow
             />
           )}
         />
         <TableBody>
           {
-            [...rows].map((row, index) => (
-              <ArcaRow
-                key={`$row-${String(index)}`}
-                row={row}
-                id={index}
-                source={source}
-                namesCells={namesCells}
-                rowToEditMode={rowToEditMode}
-                handleEditMode={handleEditMode}
-                isEditMode={rowInEdit === index}
-                deleteRow={deleteRow}
-                isDeleteNotSupport={source === FACAD_PRE_CFT_AAU_KEY}
-              />
-            ))
+            [...rows].map((row, index) => {
+              const isEditMode = rowInEdit === index;
+
+              if (isEditMode) {
+                return (
+                  <ArcaRow
+                    key={`$row-${String(index)}`}
+                    row={row}
+                    id={index}
+                    source={source}
+                    namesCells={namesCells}
+                    rowToEditMode={rowToEditMode}
+                    handleEditMode={handleEditMode}
+                  />
+                );
+              }
+
+              return (
+                <TableRow key={`$row-${String(index)}`} className={classes.row}>
+                  <TableCell className={classes.actionCell} key={`$actions-${String(index)}`}>
+                    <ArcaActions
+                      id={index}
+                      row={row}
+                      handleEditMode={handleEditMode}
+                      deleteRow={!isDeleteNotSupport && deleteRow}
+                    />
+                  </TableCell>
+                  {namesCells.map((cell: keyof Row, i) => (
+                    <TableCell key={`key-${cell}-${String(i)}}`}>
+                      { row[cell] }
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })
           }
         </TableBody>
       </Table>
