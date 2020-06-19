@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Row, SearchResultItem, State } from 'arca-redux-v4';
 import toString from 'lodash/toString';
 import get from 'lodash/get';
@@ -6,6 +6,7 @@ import isObject from 'lodash/isObject';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useStyles } from './styles';
+import { MATERIAL_UI_FOCUSED } from '../../utils/constants';
 
 interface ArcaComboboxProps {
   newRow: Row,
@@ -25,25 +26,31 @@ interface ArcaComboboxProps {
 const ArcaCombobox: React.FunctionComponent<ArcaComboboxProps> = ({
   newRow, cell, foundCell, comboboxRow, handleCombobox, onInputChange, searchResult, sourceForSearch, onKeyPress, PK, onBlur,
 }) => {
+  const elem = useRef(null);
   const classes = useStyles();
+  const value: SearchResultItem | null = isObject(newRow[cell]) ? newRow[cell] : null;
+  const isActive = [...get(elem, 'current.classList', [])].includes(MATERIAL_UI_FOCUSED);
+  const options = isActive ? searchResult : [];
 
   return (
     <Autocomplete
-      value={isObject(newRow[cell]) ? newRow[cell] : null}
+      value={value}
       onChange={handleCombobox(cell, foundCell)}
       getOptionLabel={(option: SearchResultItem) => get(option, 'Label', option as unknown as string)}
       getOptionSelected={(option, value) => option.Label === get(value, 'Label', value as unknown as string)}
 
       inputValue={toString(comboboxRow[cell])}
       onInputChange={
-        !searchResult.some((item: SearchResultItem) => item.PK[foundCell] === comboboxRow[cell])
+        !options.some((item: SearchResultItem) => item.PK[foundCell] === comboboxRow[cell])
           ? onInputChange(sourceForSearch, cell, PK)
           : () => {}
       }
 
+      ref={elem}
+      size='small'
       onBlur={onBlur}
       className={classes.combobox}
-      options={searchResult}
+      options={options}
       renderInput={params => (
         <TextField
           {...params}
