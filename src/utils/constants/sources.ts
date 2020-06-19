@@ -6,3 +6,4 @@ export const FACAD_PARAMS_BIC = 'FACAD-ParamsBIC';
 export const FACAD_BUILT_IN_CATEGORIES = 'FACAD-BuiltInCategories';
 export const PROJECTS = 'Projects';
 export const APU_ASSIGN = 'APU-Assign';
+export const CONTRACTORS = 'Contractors';

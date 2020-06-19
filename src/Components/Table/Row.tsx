@@ -14,14 +14,16 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { useStyles } from './styles';
 import {
   FACAD_PRE_CFT_AAU_KEY, FACAD_CFT_AAU, AAU, FACAD_BUILT_IN_CATEGORIES,
-  FACAD_PARAMS_BIC, PROJECTS,
+  FACAD_PARAMS_BIC, PROJECTS, APU_ASSIGN, CONTRACTORS,
 } from '../../utils/constants/sources';
 import { socket } from '../../redux/store';
 import { REPORT_TYPE } from '../../utils/constants/selects';
 import ArcaActions from './Actions';
 import ArcaCombobox from './Combobox';
 import { ID, FIELD } from '../../utils/constants/cells';
-import { checkAllCells } from '../../utils';
+import {
+  checkAllCells, parseToCurrencyFormat, parseToDotsFormat, parseCellToNumber,
+} from '../../utils';
 
 interface ArcaRowProps {
   row: Row,
@@ -43,9 +45,11 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
   const [newRow, handleNewRow] = useState(row);
 
   const handleChange = (cell: keyof Row) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
     handleNewRow({
       ...newRow,
-      [cell]: event.target.value,
+      [cell]: parseCellToNumber(cell, value),
     });
   };
 
@@ -206,12 +210,62 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     }
   };
 
+  const getAssignInput = (cell: keyof Row, value: string) => {
+    switch (cell) {
+      case 'ContractorID':
+        return (
+          <ArcaCombobox
+            {...getComboboxProps(cell)}
+            sourceForSearch={CONTRACTORS}
+            foundCell={ID as never}
+          />
+        );
+      case 'Description':
+      case 'Unit':
+        return (
+          <Input
+            className={classes.input}
+            value={get(newRow, cell, '')}
+            onChange={handleChange(cell)}
+          />
+        );
+      case 'Estimated':
+        return (
+          <Input
+            className={classes.input}
+            value={parseToCurrencyFormat(toString(get(newRow, cell, '')))}
+            onChange={handleChange(cell)}
+          />
+        );
+      case 'P':
+        return (
+          <Input
+            className={classes.input}
+            value={parseToDotsFormat(toString(get(newRow, cell, '')), 3)}
+            onChange={handleChange(cell)}
+          />
+        );
+      case 'Q':
+        return (
+          <Input
+            className={classes.input}
+            value={parseToDotsFormat(toString(get(newRow, cell, '')), 2)}
+            onChange={handleChange(cell)}
+          />
+        );
+      default:
+        return getDisabledInput(value);
+    }
+  };
+
   const getInput = (source: keyof State['Source'], cell: keyof Row, value: string) => {
     switch (source) {
       case FACAD_PRE_CFT_AAU_KEY:
         return getFacadKeysInput(cell, value);
       case FACAD_CFT_AAU:
         return getFacadCftInput(cell, value);
+      case APU_ASSIGN:
+        return getAssignInput(cell, value);
       default:
         return getDisabledInput(value);
     }

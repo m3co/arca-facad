@@ -29,5 +29,5 @@ export default {
     'ID',
     'ContractorID',
     'Qres',
-  ]
+  ],
 };

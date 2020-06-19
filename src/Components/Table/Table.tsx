@@ -7,7 +7,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import { useStyles } from './styles';
 import { socket } from '../../redux/store';
-import { getColumnOrder } from '../../utils';
+import { getColumnOrder, displayCell } from '../../utils';
 import { FACAD_PRE_CFT_AAU_KEY } from '../../utils/constants/sources';
 import ArcaTableHeader from './TableHeader';
 import ArcaRow from './Row';
@@ -96,7 +96,7 @@ const ArcaTable: React.FunctionComponent<ArcaTableProps> = ({
                   </TableCell>
                   {namesCells.map((cell: keyof Row, i) => (
                     <TableCell key={`key-${cell}-${String(i)}}`}>
-                      { row[cell] }
+                      { displayCell(cell, row[cell]) }
                     </TableCell>
                   ))}
                 </TableRow>
