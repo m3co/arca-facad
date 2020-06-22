@@ -22,7 +22,7 @@ import ArcaActions from './Actions';
 import ArcaCombobox from './Combobox';
 import { ID, FIELD } from '../../utils/constants/cells';
 import {
-  checkAllCells, parseToCurrencyFormat, parseToDotsFormat, parseCellToNumber,
+  checkAllCells, parseToCurrencyFormat, parseCellToNumber,
 } from '../../utils';
 
 interface ArcaRowProps {
@@ -124,6 +124,12 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
     onBlur: onBlurCombobox,
   });
 
+  const getInputProps = (cell: keyof Row) => ({
+    onChange: handleChange(cell),
+    onKeyPress,
+    className: classes.input,
+  });
+
   const getFacadKeysInput = (cell: keyof Row, value: string) => {
     switch (cell) {
       case 'Key':
@@ -154,9 +160,8 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
       case 'Type':
         return (
           <Input
-            className={classes.input}
+            {...getInputProps(cell)}
             value={get(newRow, cell, '')}
-            onChange={handleChange(cell)}
           />
         );
       case 'Key':
@@ -185,6 +190,7 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
             value={get(newRow, cell, '')}
             onChange={handleChange(cell)}
             className={classes.select}
+            onKeyPress={onKeyPress}
           >
             {
               REPORT_TYPE.map((TYPE, i) => <MenuItem key={`${TYPE}-${String(i)}`} value={TYPE}>{TYPE}</MenuItem>)
@@ -224,33 +230,29 @@ const ArcaRow: React.FunctionComponent<ArcaRowProps> = ({
       case 'Unit':
         return (
           <Input
-            className={classes.input}
+            {...getInputProps(cell)}
             value={get(newRow, cell, '')}
-            onChange={handleChange(cell)}
           />
         );
       case 'Estimated':
         return (
           <Input
-            className={classes.input}
+            {...getInputProps(cell)}
             value={parseToCurrencyFormat(toString(get(newRow, cell, '')))}
-            onChange={handleChange(cell)}
           />
         );
       case 'P':
         return (
           <Input
-            className={classes.input}
-            value={parseToDotsFormat(toString(get(newRow, cell, '')), 3)}
-            onChange={handleChange(cell)}
+            {...getInputProps(cell)}
+            value={toString(get(newRow, cell, ''))}
           />
         );
       case 'Q':
         return (
           <Input
-            className={classes.input}
-            value={parseToDotsFormat(toString(get(newRow, cell, '')), 2)}
-            onChange={handleChange(cell)}
+            {...getInputProps(cell)}
+            value={toString(get(newRow, cell, ''))}
           />
         );
       default:
