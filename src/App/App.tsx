@@ -10,20 +10,20 @@ import { FACAD_CFT_AAU, FACAD_PRE_CFT_AAU_KEY, APU_ASSIGN } from '../utils/const
 
 const App: React.FunctionComponent = () => {
   const facadCft = useSelector((state: Store) => getSpecificSource(state, FACAD_CFT_AAU));
-  const facadKeys = useSelector((state: Store) => getSpecificSource(state, FACAD_PRE_CFT_AAU_KEY));
+  //const facadKeys = useSelector((state: Store) => getSpecificSource(state, FACAD_PRE_CFT_AAU_KEY));
   const assign = useSelector((state: Store) => getSpecificSource(state, APU_ASSIGN));
 
   useEffect(() => {
     socket.select(FACAD_CFT_AAU);
-    socket.select(FACAD_PRE_CFT_AAU_KEY);
+    //socket.select(FACAD_PRE_CFT_AAU_KEY);
     socket.select(APU_ASSIGN);
   }, []);
 
   const tabs = [
-    {
-      value: facadKeys.length ? <ArcaTable rows={facadKeys} source={FACAD_PRE_CFT_AAU_KEY} /> : <Loader />,
-      label: 'Keys',
-    },
+    // {
+    //   value: facadKeys.length ? <ArcaTable rows={facadKeys} source={FACAD_PRE_CFT_AAU_KEY} /> : <Loader />,
+    //   label: 'Keys',
+    // },
     {
       value: facadCft.length ? <ArcaTable rows={facadCft} source={FACAD_CFT_AAU} /> : <Loader />,
       label: 'CFT',
